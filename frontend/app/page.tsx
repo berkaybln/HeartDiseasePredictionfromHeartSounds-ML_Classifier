@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { HeartPulse, Activity, Search, Play, ClipboardList, Info } from 'lucide-react';
 
-const API_BASE_URL = 'https://berkaybln-heartguard.hf.space';
+const API_BASE_URL = '';
 
 
 const VALID_LOCATIONS = [
@@ -49,7 +49,6 @@ export default function DashboardPage() {
 
   return (
     <main className="min-h-screen bg-[#0f172a] text-slate-200 font-sans selection:bg-sky-500/30">
-
       {/* HEADER BÖLÜMÜ - GitHub Linki Burada */}
       <div className="max-w-7xl mx-auto px-4 pt-12 mb-16">
         <a
@@ -62,7 +61,6 @@ export default function DashboardPage() {
           <div className="p-4 bg-sky-500/10 rounded-2xl ring-1 ring-sky-500/50 shadow-[0_0_20px_rgba(14,165,233,0.15)] transition-all group-hover:bg-sky-500/20 group-hover:ring-sky-500 group-hover:shadow-sky-500/30">
             <HeartPulse className="h-9 w-9 text-sky-400 animate-pulse" />
           </div>
-
           <div className="flex flex-col">
             <h1 className="text-3xl font-extrabold text-white tracking-tight group-hover:text-sky-400 transition-colors">
               HeartGuard <span className="text-sky-500 text-2xl font-light">Expert System</span>
@@ -73,18 +71,15 @@ export default function DashboardPage() {
           </div>
         </a>
       </div>
-
       {/* ANA İÇERİK - Alt Kısım */}
       <div className="max-w-7xl mx-auto px-4 pb-20">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-
           {/* Sol Kolon: Seçim Alanı */}
           <div className="lg:col-span-5 space-y-6">
             <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-6 backdrop-blur-sm">
               <h2 className="text-sm font-bold text-sky-400 uppercase tracking-widest mb-6 flex items-center gap-2">
                 <Search className="h-4 w-4" /> Analysis Information
               </h2>
-
               <div className="space-y-4">
                 <div>
                   <label className="block text-xs font-semibold text-slate-500 mb-2">HEART SOUND</label>
@@ -100,7 +95,6 @@ export default function DashboardPage() {
                       ))}
                   </select>
                 </div>
-
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-semibold text-slate-500 mb-2">GENDER</label>
@@ -126,7 +120,6 @@ export default function DashboardPage() {
                 </div>
               </div>
             </div>
-
             {/* Bilgi Notu */}
             <div className="bg-sky-500/5 border border-sky-500/20 rounded-2xl p-4 flex gap-3">
               <Info className="h-5 w-5 text-sky-400 shrink-0" />
@@ -134,30 +127,27 @@ export default function DashboardPage() {
                 <strong className="text-sm text-sky-100/70 font-bold">Location:</strong> The area where the heart is heard <br />
                 <strong className="text-sm text-sky-100/70 font-bold">Gender:</strong> Gender <br />
                 <br />
-
-
-                <strong className="text-red-400 font-bold">WARNING:</strong> The selected location and gender information directly affects the result in parallel with the sound analysis. Please enter the correct information provided by the clinic and perform the analysis based on the correct heart sound.
+                <strong className="text-red-400 font-bold">WARNING:</strong> The selected location and gender information directly affects the result in parallel with the sound analysis. Please enter the correct information provided by the clinic and perform the analysis based on the correct heart sound. <br />
+                <br />
+                <strong className="text-sm text-sky-100/70 font-bold">Inform:</strong> It may take some time for the sound to load when the application is first opened (on average 5-10 seconds).
               </p>
             </div>
           </div>
-
           {/* Sağ Kolon: Dinleme ve Sonuç */}
           <div className="lg:col-span-7 space-y-6">
-
             {/* Audio Bölümü */}
             <div className="bg-slate-900/50 border border-slate-800 rounded-3xl p-8 text-center relative overflow-hidden group">
               <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                 <Play className="h-24 w-24 text-sky-400" />
               </div>
-
               <h2 className="text-sm font-bold text-slate-400 mb-6 uppercase tracking-widest">signal listening</h2>
               <audio
                 key={selectedId}
                 controls
+                playsInline
                 className="w-full mb-8"
                 src={`${API_BASE_URL}/listen/${selectedId}`}
               />
-
               <button
                 onClick={handleAnalyze}
                 disabled={prediction.status === 'loading'}
@@ -166,10 +156,9 @@ export default function DashboardPage() {
                 {prediction.status === 'loading' ? (
                   <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 ) : <Activity className="h-5 w-5" />}
-                {prediction.status === 'loading' ? 'ANALİZ EDİLİYOR...' : 'START ANALYSIS'}
+                {prediction.status === 'loading' ? 'BEING ANALYZED...' : 'START ANALYSIS'}
               </button>
             </div>
-
             {/* Sonuç Bölümü */}
             <div className={`rounded-3xl border p-8 transition-all duration-500 ${
               prediction.status === 'success'
@@ -180,7 +169,6 @@ export default function DashboardPage() {
                 <ClipboardList className={`h-5 w-5 ${prediction.status === 'success' ? 'text-white' : 'text-slate-500'}`} />
                 <h3 className="text-sm font-bold uppercase tracking-widest">DIAGNOSIS REPORT</h3>
               </div>
-
               <div className="text-center py-4">
                 {prediction.status === 'idle' && <p className="text-slate-500 italic text-sm">Start an analysis...</p>}
                 {prediction.status === 'success' && (
@@ -195,7 +183,6 @@ export default function DashboardPage() {
                 )}
               </div>
             </div>
-
           </div>
         </div>
       </div>
