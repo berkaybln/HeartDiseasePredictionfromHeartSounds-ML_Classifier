@@ -6,7 +6,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, FileResponse
 import soundfile as sf
 import librosa
 import os
@@ -36,13 +36,44 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+frontend_path = "frontend/out"
+static_path = os.path.join(frontend_path, "static")
+next_static_path = os.path.join(frontend_path, "_next/static")
+
+
+if os.path.exists(next_static_path):
+    app.mount("/_next/static", StaticFiles(directory=next_static_path), name="next-static")
+
+
+if os.path.exists(static_path):
+    app.mount("/static", StaticFiles(directory=static_path), name="static")
+else:
+    print("Uyarı: 'static' klasörü bulunamadı, ancak uygulama devam ediyor.")
+    
 app.mount("/sounds", StaticFiles(directory=SOUND_DIR), name="sounds")
+
+NORMALIZED_DIR = "normalized_sounds"
+os.makedirs(NORMALIZED_DIR, exist_ok=True)
+
+app.mount("/normalized", StaticFiles(directory=NORMALIZED_DIR), name="normalized")
+
+
 
 class HeartsFeatures(BaseModel):
 
     Gender: str
     Location: str
     Heart_Sound_ID: str = Field(alias="Heart Sound ID")
+
+
+@app.get("/")
+async def serve_frontend():
+    index_path = os.path.join(frontend_path, "index.html")
+    if os.path.exists(index_path):
+        return FileResponse(index_path)
+    return {"error": "Frontend dosyaları bulunamadı."}
+
 
 @app.get("/get-sounds")
 async def get_sounds():
@@ -52,41 +83,30 @@ async def get_sounds():
     return {"sounds": sounds}
 
 
+
+
 @app.get("/listen/{sound_id}")
+
 
 async def listen_boosted_sound(sound_id: str):
     """
     Ses kayıtları ses şiddeti olarak oldukça düşük seviyede.
     Burada sesi normalize eder (sesini yükseltir) ve tarayıcıya stream olarak gönderir.
-
     """
-    file_path = f"{SOUND_DIR}/{sound_id}.wav"
+    src_path = f"{SOUND_DIR}/{sound_id}.wav"
+    out_path = f"{NORMALIZED_DIR}/{sound_id}.wav"
 
-    if not os.path.exists(file_path):
-        raise HTTPException(status_code=404, detail="Ses dosyası bulunamadı")
+    if not os.path.exists(src_path):
+        raise HTTPException(status_code=404)
 
-    try:
+    if not os.path.exists(out_path):
+        sound, sr = librosa.load(src_path, sr=16000)
+        max_val = np.max(np.abs(sound))
+        if max_val > 0:
+            sound = sound / max_val
+        sf.write(out_path, sound, sr, subtype='PCM_16')
 
-        sound, sample_rate = librosa.load(file_path, sr=None)
-
-
-        if len(sound) > 0:
-            max_val = np.max(np.abs(sound))
-            if max_val > 0:
-                boosted_sound = sound / max_val
-            else:
-                boosted_sound = sound
-        else:
-            boosted_sound = sound
-
-
-        buffer = io.BytesIO()
-        sf.write(buffer, boosted_sound, sample_rate, format='WAV')
-        buffer.seek(0)
-
-        return StreamingResponse(buffer, media_type="audio/wav")
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Ses işleme hatası: {str(e)}")
+    return FileResponse(out_path, media_type="audio/wav")
 
 
 @app.post("/predict")
@@ -104,4 +124,3 @@ async def predict(features: HeartsFeatures):
         "sound_id": features.Heart_Sound_ID
 
             }
-
