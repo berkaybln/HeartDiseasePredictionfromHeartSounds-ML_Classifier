@@ -8,17 +8,25 @@ The project includes feature extraction from raw sound data, model training, and
 🚀 Key Features
 
 **Sound Analysis:** Features are extracted from sound files using the `Librosa` library.
+
 **ML Model:** A high-accuracy classifier trained to recognize complex patterns in heart sounds.
+
 **Modern Backend:** An asynchronous and fast API architecture with FastAPI.
+
 **Dockerized:** Guaranteed seamless operation in any environment (Containerization).
+
 **Frontend Ready:** Can integrate with a modern interface developed with Next.js.
 
 🛠️ Technologies Used
 
 **Language:** Python
+
 **ML & Data Analysis:** Scikit-learn, Pandas, Numpy
+
 **Audio Processing:** Librosa
+
 **API Framework:** FastAPI, Uvicorn
+
 **Deployment:** Docker
 
 📂 Project Structure
